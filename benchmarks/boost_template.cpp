@@ -1,7 +1,11 @@
 #include <iostream>
-#include <chrono>
+#include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/threadpool.hpp>
+#include <boost/asio/thread_pool.hpp>
+#include <boost/asio/post.hpp>
+#include <unistd.h>
+
+using namespace std;
 
 const int num_threads = 4;        // Number of threads in the pool
 const int num_tasks = 100000;     // Total number of tasks to execute
@@ -10,13 +14,18 @@ const int tasks_per_batch = 1000; // Number of tasks in each batch
 void workerTask(int task_id)
 {
     // Simulate some work
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
+    cout << task_id << " is going to sleep." << endl;
+    
+    // boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
+    sleep(1);
+    cout << task_id << " has woken up." << endl;
+
 }
 
 int main()
 {
     // Create a thread pool with the specified number of threads
-    boost::threadpool::thread_pool<> pool(num_threads);
+    boost::asio::thread_pool pool(num_threads);
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -27,21 +36,17 @@ int main()
         // Enqueue a batch of tasks
         for (int j = 0; j < batch_size; ++j)
         {
-            pool.submit(boost::bind(workerTask, i + j));
+            boost::asio::post(pool, boost::bind(&workerTask, i + j));
+            // pool.submit(boost::bind(workerTask, i + j));
         }
 
         // Wait for the batch of tasks to complete
-        pool.wait();
+        pool.join();
     }
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    
+    cout << "Throughput benchmark results: " << endl;
 
-    std::cout << "Throughput benchmark results:" << std::endl;
-    std::cout << "Number of threads:" << num_threads << std::endl;
-    std::cout << "Number of tasks:" << num_tasks << std::endl;
-    std::cout << "Elapsed times (ms):" << elapsed_time << std::endl;
-    std::cout << "Throughput (tasks per second)" << (static_cast<double>(num_tasks) / elapsed_time) * 1000 << std::endl;
-
-    return 0;
 }
