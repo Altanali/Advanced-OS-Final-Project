@@ -7,7 +7,7 @@ endif
 
 
 boost_template: benchmarks/boost_template.cpp
-	$(cc) -I $(BOOST) $< -o $@ -lpthread -lboost_thread-mt
+	$(cc) -I $(BOOST) $< -o $@ -lpthread -lboost_thread
 
 
 
