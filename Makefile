@@ -1,5 +1,6 @@
 cc=g++
 
+HELPER=benchmarks/tasks.hpp
 
 ifndef $(BOOST)
 	BOOST=~/boost_1_82_0/
@@ -10,8 +11,14 @@ ifndef $(ONETBB)
 endif
 
 boost_template: benchmarks/boost_template.cpp
-	$(cc) -I $(BOOST) $< -o $@ -lpthread -lboost_thread
+	$(cc) -I $(BOOST) $< $(HELPER) -o $@ -lpthread -lboost_thread
 
+
+boost_scalability: benchmarks/boost_scalability.cpp
+	$(cc) -I $(BOOST) $< $(HELPER) -o $@ -lpthread -lboost_thread
 
 tbb_template: benchmarks/tbb_template.cpp
-	$(cc) -I $(ONETBB) $< -o $@ -ltbb
+	$(cc) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
+
+tbb_scalability: benchmarks/tbb_scalability.cpp
+	$(cc) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
