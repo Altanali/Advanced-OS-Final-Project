@@ -1,0 +1,32 @@
+ ignore all
+*
+
+
+# Unignore all files with extensions
+!*.*
+
+
+# Unignore all dirs
+!*/
+
+
+# Unifnore all Makefiles
+!Makefile
+
+# directories and base files on home page
+.Xauthority
+.bash_logout
+.bash_history
+.bashrc
+.cache/
+.forward
+.profile
+.ssh/
+.lesshst
+.nanorc
+.gitconfig
+.vscode
+
+
+# GitHub access token
+PAT_key.txt
