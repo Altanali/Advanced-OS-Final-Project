@@ -69,7 +69,7 @@ namespace pool
         // stop all threads
         for (std::size_t i = 0; i < threads_.size(); ++i)
         {
-            threads_[i].request_stop();
+            threads_[i].detach();
             tasks_[i].signal.release();
             threads_[i].join();
         }
@@ -126,7 +126,7 @@ namespace pool
      */
     template <typename FunctionType>
     template <typename Function, typename... Args>
-    void ThreadPool<FunctionType>::enqueueDetach(Function &&f, Args &&...args)
+    void ThreadPool<FunctionType>::enqueueDetach(Function &&func, Args &&...args)
     {
         enqueueTask(
             std::move([f = std::forward<Function>(func),
@@ -134,7 +134,7 @@ namespace pool
                       {
                           try
                           {
-                              std::invoke(f, largs);
+                              std::invoke(f, largs...);
                           }
                           catch (...)
                           {

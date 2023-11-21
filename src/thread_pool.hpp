@@ -73,11 +73,10 @@ namespace pool
         {
             pool::ThreadSafeQueue<FunctionType> tasks{};
             std::binary_semaphore signal{0}; // Flag to signal the thread to stop
-        }
+        };
 
         // Vector to hold threads
-        std::vector<std::thread>
-            threads_;
+        std::vector<std::thread> threads_;
 
         // Deque to store task items
         std::deque<taskItem> tasks_;
