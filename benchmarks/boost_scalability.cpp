@@ -5,56 +5,43 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/asio/thread_pool.hpp>
-
+#include "tasks.hpp"
 using namespace boost::asio;
 
-// primality check helper
-bool isPrime(int n)
-{
-    if (n <= 1)
-    {
-        return false;
-    }
-    if (n <= 3)
-    {
-        return true;
-    }
-
-    if (n % 2 == 0 || n % 3 == 0)
-    {
-        return false;
-    }
-
-    for (int i = 5; i * i <= n; i += 6)
-    {
-        if (n % i == 0 || n % (i + 2) == 0)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
+const int maxThreads = 16; // Maximum number of threads to test
+const int numTasks = 1000; // Number of tasks to execute
+const int numRepeats = 3;  // Number of times to repeat the test
 
 // task for each thread to perform
 void task()
 {
-    // set the random number generator with the current time
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
-    int upperLimit = 100; // upper limit for random numbers
+			int m = 100;
+			int n = 100;
+			int k = 100;
+			int rsA, rsB, rsC, 
+			csA, csB, csC;
 
-    int randomNum = std::rand() % (upperLimit - 2) + 2;
-#ifdef VERBOSE
-    std::cout << "Random Number: " << randomNum << std::endl;
-    isPrime(randomNum) ? std::cout << "Prime" << std::endl : std::cout << "Not Prime" << std::endl;
-#endif // VERBOSE
+			rsA = rsC = m;
+			rsB = k;
+			csA = csB = csC = 1;
+
+			double *A = randomMatrix(m, k);
+			double *B = randomMatrix(k, n);
+			double *C = randomMatrix(m, n);
+
+			GEMM(m, n, k, 
+				A, rsA, csA, 
+				B, rsB, csB,
+				C, rsC, csC);
+
+			
+			free(A);
+			free(B);
+			free(C);
 }
 
 int main()
 {
-    const int maxThreads = 16; // Maximum number of threads to test
-    const int numTasks = 1000; // Number of tasks to execute
-    const int numRepeats = 3;  // Number of times to repeat the test
 
     std::cout << "Scalability Benchmark Results:" << std::endl;
 
@@ -62,7 +49,7 @@ int main()
     {
         double totalDuration = 0.0;
 
-        for (int repeat = 0; repeat <= numRepeats; ++repeat)
+        for (int repeat = 0; repeat < numRepeats; ++repeat)
         {
             thread_pool threadPool(numThreads);
 
@@ -89,7 +76,7 @@ int main()
         double aveThroughput = numTasks / aveDuration * 1000;
 
         std::cout << "Threads: " << numThreads << ", Throughput: "
-                  << aveThroughput << "tasks per second" << std::endl;
+                  << aveThroughput << " tasks per second" << std::endl;
     }
 
     return 0;

@@ -4,7 +4,7 @@
 #include <thread>
 #include <chrono>
 #include <stdio.h>
-
+#include <stdlib.h>
 
 using namespace std;
 
@@ -12,6 +12,10 @@ using namespace std;
 class ThreadSleep {
 	public:
 		void operator()( const oneapi::tbb::blocked_range<size_t> &r) const {
+			if(r.size() > 1) {
+					cout << "More than 1 task in this partition!\n";
+					exit(1);
+			}
 			for(size_t i = r.begin(); i != r.end(); ++i) {
 				printf("%zu is going to sleep.\n", i);
 				this_thread::sleep_for(chrono::milliseconds(10));
@@ -25,9 +29,10 @@ void ParallelThreadSleep(size_t n) {
 	oneapi::tbb::parallel_for(
 		oneapi::tbb::blocked_range<size_t>(0, n),
 		ThreadSleep(),
-		oneapi::tbb::simple_partitioner()
+		oneapi::tbb::simple_partitioner() 
 		/*
-			Simple Partitioner ensures each item a new sleep task is submitted
+			Simple Partitioner (default grainsize = 1) 
+			ensures each item a new sleep task is submitted
 			per item in the range.
 		*/
 	);
