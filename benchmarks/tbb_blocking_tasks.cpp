@@ -97,6 +97,8 @@ int main() {
 		}
 		cout << "Thread Count: " << num_threads << endl;
 		cout << "Average time per task: " << total_duration/num_tasks_executed << " ms per task.\n";
+		cout << "Tasks per second: " << num_tasks_executed/total_duration*1000 << endl;
+
 	}
 	return 0;
 	

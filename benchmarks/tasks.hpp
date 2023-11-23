@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-static const float MAX_MATRIX_VALUE = 1000;
+static const int MAX_MATRIX_VALUE = 1000;
 
 // Basic algorithm for determining if a number is prime or not. 
 bool isPrime(long long n)
@@ -46,7 +46,7 @@ double *randomMatrix(int m, int n) {
     }
     for(int i = 0; i < m; ++i) 
         for(int j = 0; j < n; ++j)
-            matrix[i*m + j] = drand48()*MAX_MATRIX_VALUE;
+            matrix[i*m + j] = rand()%MAX_MATRIX_VALUE;
     return matrix;
 
 }

@@ -22,3 +22,6 @@ tbb_template: benchmarks/tbb_template.cpp
 
 tbb_scalability: benchmarks/tbb_scalability.cpp
 	$(cc) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
+
+tbb_blocking: benchmarks/tbb_blocking_tasks.cpp
+	$(cc) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
