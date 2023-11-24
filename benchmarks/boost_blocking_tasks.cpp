@@ -63,7 +63,7 @@ int main()
 
 			num_tasks_executed += num_tasks;
 			for(int block = 0; block < num_tasks; ++block) {
-				blocked_tasks[block] = block < num_tasks ? 0 : 1;
+				blocked_tasks[block] = block < num_blocked_tasks ? 1 : 0;
 			}
 			random_shuffle(blocked_tasks, blocked_tasks + num_tasks);
 			auto start_time = std::chrono::high_resolution_clock::now();

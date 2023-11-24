@@ -8,9 +8,11 @@
 #include "tasks.hpp"
 using namespace boost::asio;
 
-const int maxThreads = 16; // Maximum number of threads to test
-const int numTasks = 1000; // Number of tasks to execute
-const int numRepeats = 3;  // Number of times to repeat the test
+
+const int max_threads = 16;        // Number of threads in the pool
+const int num_tasks = 1000;      // Total number of tasks to execute
+const int numRepeats = 3;
+
 
 // task for each thread to perform
 void task()
@@ -45,39 +47,34 @@ int main()
 
     std::cout << "Scalability Benchmark Results:" << std::endl;
 
-    for (int numThreads = 1; numThreads <= maxThreads; numThreads *= 2)
+    for (int num_threads = 1; num_threads <= max_threads; num_threads *= 2)
     {
-        double totalDuration = 0.0;
+        double total_duration = 0;
+        int num_tasks_executed = 0;
 
         for (int repeat = 0; repeat < numRepeats; ++repeat)
         {
-            thread_pool threadPool(numThreads);
+            thread_pool threadPool(num_threads);
 
             // Measure the performance of tasks
-            auto startTime = std::chrono::high_resolution_clock::now();
-            for (int i = 0; i < numTasks; ++i)
+            auto start_time = std::chrono::high_resolution_clock::now();
+            for (int i = 0; i < num_tasks; ++i)
             {
                 post(threadPool, task);
             }
 
             threadPool.join();
 
-            auto endTime = std::chrono::high_resolution_clock::now();
-            auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-            totalDuration += elapsedTime.count();
-            double throughput = numTasks / elapsedTime.count() * 1000;
-#ifdef VERBOSE
-            std::cout << "Throughput (iteration " << repeat + 1 << ", "
-                      << numThreads << " threads): " << throughput << std::endl;
-#endif // VERBOSE
+			auto end_time = std::chrono::high_resolution_clock::now();
+			auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+			total_duration += elapsed_time.count();
+
         }
 
-        double aveDuration = totalDuration / numRepeats;
-        double aveThroughput = numTasks / aveDuration * 1000;
-
-        std::cout << "Threads: " << numThreads << ", Throughput: "
-                  << aveThroughput << " tasks per second" << std::endl;
-    }
+        cout << "Thread Count: " << num_threads << endl;
+		cout << "Average time per task: " << total_duration/num_tasks_executed << " ms per task.\n";
+		cout << "Tasks per second: " << num_tasks_executed/total_duration*1000 << endl;
+		cout << endl;
 
     return 0;
 }
