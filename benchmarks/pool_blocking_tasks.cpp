@@ -66,7 +66,7 @@ int main()
 
             for (int block = 0; block < numTasks; ++block)
             {
-                blockedTasks[block] = (block < numTasks) ? 0 : 1;
+                blockedTasks[block] = block < numBlockedTasks ? 1 : 0;
             }
 
             std::random_device rd;
