@@ -14,7 +14,6 @@
 
 using namespace std;
 using namespace oneapi::tbb;
-const int max_threads = 16;        // Number of threads in the pool
 const int num_tasks = 1000;      // Total number of tasks to execute
 const int numRepeats = 3;
 int blocked_tasks[num_tasks];
@@ -77,9 +76,7 @@ int main() {
 	
 
 	cout << "Template benchmark results: " << endl;
-	double total_duration = 0;
 	int iter = 0;
-	int num_tasks_executed = 0;
 	// for(int num_threads = 1; num_threads <= max_threads; num_threads*=2) {
 		int num_threads = 8;
 		global_control global_limit(
@@ -88,8 +85,11 @@ int main() {
 		);
 		
 		for(double percent_blocked = 0; percent_blocked <= 1; percent_blocked += 0.2) {
+			double total_duration = 0;
+			int num_tasks_executed = 0;
 			int num_blocked_tasks = (int)floor(num_tasks*percent_blocked);
 			cout << "Blocking " << num_blocked_tasks << " tasks.\n";
+
 			for(int repeat = 0; repeat < numRepeats; ++repeat, ++iter) {
 
 				num_tasks_executed += num_tasks;
