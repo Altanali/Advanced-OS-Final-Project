@@ -11,9 +11,9 @@
 using namespace std;
 using namespace oneapi::tbb;
 
-const int maxThreads = 16; // Maximum number of threads to test
-const int numTasks = 1000; // Number of tasks to execute
-const int numRepeats = 3;  // Number of times to repeat the test
+const int max_threads = 16;        // Number of threads in the pool
+const int num_tasks = 1000;      // Total number of tasks to execute
+const int numRepeats = 3;
 
 
 class ThreadTaskMatrixMultiply{
@@ -61,37 +61,33 @@ void ParallelThreadTask(size_t n) {
 }
 
  
+ 
 int main() {
 
-    std::cout << "OneTBB Scalability Benchmark Results:" << std::endl;
+	
 
-	for(int numThreads = 1; numThreads <= maxThreads; numThreads *= 2) {
-		
+	cout << "Template benchmark results: " << endl;
 
-		// Setup configuration to fix number of threads used by OneTBB
-		oneapi::tbb::global_control global_limit(
-			oneapi::tbb::global_control::max_allowed_parallelism, 
-			numThreads
+	for(int num_threads = 1; num_threads <= max_threads; num_threads*=2) {
+		double total_duration = 0;
+		int iter = 0;
+		int num_tasks_executed = 0;
+		global_control global_limit(
+			global_control::max_allowed_parallelism, 
+			num_threads
 		);
 
-		assert(global_control::active_value(global_control::max_allowed_parallelism) == numThreads);
-
-        double totalDuration = 0.0;
-
-		for(int repeat = 0; repeat < numRepeats; ++repeat) {
-			auto startTime = chrono::high_resolution_clock::now();
-			ParallelThreadTask(numTasks); 
-			auto endTime = chrono::high_resolution_clock::now();
-			auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-			totalDuration += elapsedTime;
+		for(int repeat = 0; repeat < numRepeats; ++repeat, ++iter) {
+			num_tasks_executed += num_tasks;
+			auto start_time = chrono::high_resolution_clock::now();
+			ParallelThreadTask(num_tasks);
+			auto end_time = chrono::high_resolution_clock::now();
+			auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+			total_duration += elapsed_time.count();
 		}
-
-		double aveDuration = totalDuration / numRepeats;
-        double aveThroughput = numTasks / aveDuration * 1000;
-
-        std::cout << "Threads: " << numThreads << ", Throughput: "
-                  << aveThroughput << " tasks per second" << std::endl;
-
+		cout << "Thread Count: " << num_threads << endl;
+		cout << "Average time per task: " << total_duration/num_tasks_executed << " ms per task.\n";
+		cout << "Tasks per second: " << num_tasks_executed/total_duration*1000 << endl;
 	}
 	return 0;
 	
