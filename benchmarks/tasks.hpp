@@ -51,9 +51,6 @@ double *randomMatrix(int m, int n) {
 
 }
 
-#define alpha(r, c) A[r*rsA + c*csA]
-#define beta(r, c) B[r*rsB + c*csB]
-#define gamma(r, c) C[r*rsC * c*csC]
 
 void GEMM(
     int m, int n, int k, 
