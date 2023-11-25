@@ -55,7 +55,7 @@ int main()
 
         for (int repeat = 0; repeat < numRepeats; ++repeat)
         {
-			BS::thread_pool threadPool; //Recreate each repetition
+			BS::thread_pool threadPool(num_threads); //Recreate each repetition
 
             // Measure the performance of tasks
             auto start_time = std::chrono::high_resolution_clock::now();
