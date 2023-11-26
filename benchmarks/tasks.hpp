@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 using namespace std;
 
 static const float MAX_MATRIX_VALUE = 1000;
@@ -70,5 +74,6 @@ void GEMM(
 }
 
 
+void thread_accept_message(int connection); //Implemented within each benchmark that uses it. 
 
 #endif
