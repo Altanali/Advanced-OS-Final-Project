@@ -1,5 +1,5 @@
 #include <oneapi/tbb.h>
-#include <oneapi/tbb/spin_mutex.h>
+#include <oneapi/tbb/mutex.h>
 #include <time.h>
 #include <iostream>
 #include <thread>
@@ -18,7 +18,7 @@ const int max_threads = 16;        // Number of threads in the pool
 const int num_tasks = 1000;      // Total number of tasks to execute
 const int numRepeats = 3;
 
-vector<oneapi::tbb::spin_mutex> locks(num_tasks/2); //non blocking mutex
+vector<oneapi::tbb::mutex> locks(num_tasks/2); //non blocking mutex
 vector<int> task_order;
 class ThreadTaskMatrixMultiply{
 	public:
@@ -37,7 +37,8 @@ class ThreadTaskMatrixMultiply{
 			rsB = k;
 			csA = csB = csC = 1;
 			{
-				oneapi::tbb::spin_mutex::scoped_lock lock(locks[lock_idx]);
+				//acquire lock for the duration of this section.
+				oneapi::tbb::mutex::scoped_lock lock(locks[lock_idx]);
 				double *A = randomMatrix(m, k);
 				double *B = randomMatrix(k, n);
 				double *C = randomMatrix(m, n);
