@@ -1,46 +1,47 @@
-#include <ctime>
+#include "BS_thread_pool.hpp"
+#include <time.h>
+#include <iostream>
 #include <thread>
 #include <chrono>
-#include <cstdlib>
-#include <iostream>
-#include <boost/asio.hpp>
-#include <boost/asio/thread_pool.hpp>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include "tasks.hpp"
-using namespace boost::asio;
 
+
+using namespace std;
 
 const int max_threads = 16;        // Number of threads in the pool
 const int num_tasks = 1000;      // Total number of tasks to execute
 const int numRepeats = 3;
 
+int i = 0;
+void task() {
 
-// task for each thread to perform
-void task()
-{
-			int m = 100;
-			int n = 100;
-			int k = 100;
-			int rsA, rsB, rsC, 
-			csA, csB, csC;
+	int m = 100;
+	int n = 100;
+	int k = 100;
+	int rsA, rsB, rsC, 
+	csA, csB, csC;
 
-			rsA = rsC = m;
-			rsB = k;
-			csA = csB = csC = 1;
+	rsA = rsC = m;
+	rsB = k;
+	csA = csB = csC = 1;
 
-			double *A = randomMatrix(m, k);
-			double *B = randomMatrix(k, n);
-			double *C = randomMatrix(m, n);
+	double *A = randomMatrix(m, k);
+	double *B = randomMatrix(k, n);
+	double *C = randomMatrix(m, n);
 
-			GEMM(m, n, k, 
-				A, rsA, csA, 
-				B, rsB, csB,
-				C, rsC, csC);
+	GEMM(m, n, k, 
+		A, rsA, csA, 
+		B, rsB, csB,
+		C, rsC, csC);
 
-			
-			free(A);
-			free(B);
-			free(C);
+	free(A);
+	free(B);
+	free(C);
 }
+
 
 int main()
 {
@@ -54,20 +55,21 @@ int main()
 
         for (int repeat = 0; repeat < numRepeats; ++repeat)
         {
-            thread_pool threadPool(num_threads);
+			BS::thread_pool threadPool(num_threads); //Recreate each repetition
 
             // Measure the performance of tasks
             auto start_time = std::chrono::high_resolution_clock::now();
             for (int i = 0; i < num_tasks; ++i)
             {
-                post(threadPool, task);
+                threadPool.push_task(task);
             }
 
-            threadPool.join();
+           	threadPool.wait_for_tasks();
 
 			auto end_time = std::chrono::high_resolution_clock::now();
 			auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 			total_duration += elapsed_time.count();
+			num_tasks_executed += num_tasks;
 
         }
 
@@ -76,5 +78,6 @@ int main()
 		cout << "Tasks per second: " << num_tasks_executed/total_duration*1000 << endl;
 		cout << endl;
 
+	}
     return 0;
 }
