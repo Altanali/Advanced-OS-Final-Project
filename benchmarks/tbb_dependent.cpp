@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include "tasks.hpp"
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
 using namespace oneapi::tbb;
@@ -18,13 +19,13 @@ const int num_tasks = 1000;      // Total number of tasks to execute
 const int numRepeats = 3;
 
 vector<oneapi::tbb::spin_mutex> locks(num_tasks/2); //non blocking mutex
-
+vector<int> task_order;
 class ThreadTaskMatrixMultiply{
 	public:
 		void operator()( const oneapi::tbb::blocked_range<size_t> &r) const {
 
 			assert(r.size() == 1);
-			size_t item = r.begin(); 
+			size_t item = task_order[r.begin()]; 
 			int lock_idx = item % 2 ? (item - 1)/2 : item/2;
 			int m = 100;
 			int n = 100;
@@ -74,7 +75,7 @@ int main() {
 	
 
 	cout << "Template benchmark results: " << endl;
-
+	for(int i = 0; i < num_tasks; ++i) task_order.push_back(i);
 	for(int num_threads = 1; num_threads <= max_threads; num_threads*=2) {
 		double total_duration = 0;
 		int iter = 0;
@@ -85,6 +86,7 @@ int main() {
 		);
 
 		for(int repeat = 0; repeat < numRepeats; ++repeat, ++iter) {
+			random_shuffle(task_order.begin(), task_order.end());
 			num_tasks_executed += num_tasks;
 			auto start_time = chrono::high_resolution_clock::now();
 			ParallelThreadTask(num_tasks);
