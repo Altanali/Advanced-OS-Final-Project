@@ -3,12 +3,12 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
-#include <boost/asio.hpp>
-#include <boost/asio/thread_pool.hpp>
+#include "BS_thread_pool.hpp"
 #include "tasks.hpp"
 #include <stdlib.h>
+#include <cmath>
+
 using namespace std;
-using namespace boost::asio;
 
 const int num_tasks = 1000;      // Total number of tasks to execute
 const int numRepeats = 3;
@@ -59,9 +59,9 @@ int main()
 		int num_blocked_tasks = (int)floor(num_tasks*percent_blocked);
 		cout << "Blocking " << num_blocked_tasks << " tasks.\n";
 		for(int repeat = 0; repeat < numRepeats; ++repeat) {
-			thread_pool threadPool(num_threads);
 
-			num_tasks_executed += num_tasks;
+			BS::thread_pool threadPool(num_threads); //make sure to recreate each time
+
 			for(int block = 0; block < num_tasks; ++block) {
 				blocked_tasks[block] = block < num_blocked_tasks ? 1 : 0;
 			}
@@ -70,14 +70,15 @@ int main()
 			// Measure the performance of tasks
 			for (int i = 0; i < num_tasks; ++i)
 			{
-				post(threadPool, bind(&task, i));
+				threadPool.push_task(task, i);
 			}
 
-			threadPool.join();
+			threadPool.wait_for_tasks();
 
 			auto end_time = std::chrono::high_resolution_clock::now();
 			auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 			total_duration += elapsed_time.count();
+			num_tasks_executed += num_tasks;
 		}
 
 		std::cout << "Thread Count: " << num_threads << endl;
