@@ -14,6 +14,8 @@ ifndef $(BS)
 	BS=~/thread-pool/include
 endif
 
+POOL = src/thread_safe_queue.hpp src/threadpool.hpp
+
 boost_template: benchmarks/boost_template.cpp
 	$(cc) $(CFLAGS) -I $(BOOST) $< $(HELPER) -o $@ -lpthread -lboost_thread
 
@@ -47,6 +49,11 @@ bs_blocking: benchmarks/boost_blocking_tasks.cpp $(HELPER)
 bs_dependent: benchmarks/bs_dependent.cpp $(HELPER)
 	$(cc) $(CFLAGS) -I $(BS) $< $(HELPER) -o $@
 
-
 pool_scalability: benchmarks/pool_scalability.cpp
-	$(cc) $(CFLAGS) $(HELPER) $< -o $@ 
+	$(cc) $(CFLAGS) $(HELPER) $(POOL) $< -o $@ 
+
+pool_dependent: benchmarks/pool_dependent.cpp
+	$(cc) $(CFLAGS) $(HELPER) $(POOL) $< -o $@ 
+
+pool_blocking: benchmarks/pool_blocking_tasks.cpp
+	$(cc) $(CFLAGS) $(HELPER) $(POOL) $< -o $@ 
