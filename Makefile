@@ -57,3 +57,6 @@ pool_dependent: benchmarks/pool_dependent.cpp
 
 pool_blocking: benchmarks/pool_blocking_tasks.cpp
 	$(cc) $(CFLAGS) $(HELPER) $(POOL) $< -o $@ 
+
+nopool_scalability: benchmarks/nopool_scalability.cpp
+	$(cc) $(CFLAGS) $(HELPER) $< -o $@
