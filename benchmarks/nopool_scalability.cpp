@@ -11,14 +11,15 @@
 #include <mutex>
 using namespace std;
 
-const int max_threads = 16;        // Number of threads in the pool
+const int max_threads = 8;        // Number of threads in the pool
 const int num_tasks = 1000;      // Total number of tasks to execute
 const int numRepeats = 3;
 int task_counter = 0;
-constexpr std::ptrdiff_t max_sema_threads{num_tasks};
+constexpr std::ptrdiff_t max_sema_threads{max_threads};
 counting_semaphore sema{max_sema_threads};
 mutex mtx;
 condition_variable cv;
+
 void task() {
 
 	int m = 100;
@@ -54,7 +55,7 @@ int main()
 
     std::cout << "Scalability Benchmark Results:" << std::endl;
 
-    for (int num_threads = 1; num_threads <= max_threads; num_threads *= 2)
+    for (int num_threads = max_threads; num_threads <= max_threads; num_threads *= 2)
     {
         double total_duration = 0;
         int num_tasks_executed = 0;
@@ -66,15 +67,17 @@ int main()
             auto start_time = std::chrono::high_resolution_clock::now();
             for (int i = 0; i < num_tasks; ++i)
             {
-                sema.acquire();
+				sema.acquire(); //semaphore counter == max_threads, blocks when max_threads are running concurrently. threads call sema.release() before exiting.
 				thread t(task);
 				t.detach();
             }
 
 			unique_lock<mutex> lck(mtx);
 			cv.wait(lck, []() {
-				return task_counter == num_tasks;
+				return task_counter == num_tasks; //monitor to wait until all 1000 tasks have been completed 
 			});
+
+			// for(int i = 0; i < num_tasks; ++i) task();
 			
 
 			auto end_time = std::chrono::high_resolution_clock::now();
@@ -84,6 +87,7 @@ int main()
 
         }
 
+		cout << "Hardware concurrency: " << thread::hardware_concurrency() << endl;
         cout << "Thread Count: " << num_threads << endl;
 		cout << "Average time per task: " << total_duration/num_tasks_executed << " ms per task.\n";
 		cout << "Tasks per second: " << num_tasks_executed/total_duration*1000 << endl;
