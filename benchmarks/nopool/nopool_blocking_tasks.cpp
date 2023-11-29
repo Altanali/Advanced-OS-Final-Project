@@ -108,11 +108,10 @@ int main()
 			num_tasks_executed += num_tasks;
 		}
 
-		std::cout << "Thread Count: " << max_threads << endl;
-		std::cout << "Percent Tasks Blocked: " << percent_blocked << endl;
-		std::cout << "Average time per task: " << total_duration/num_tasks_executed << " ms per task.\n";
-		std::cout << "Tasks per second: " << num_tasks_executed/total_duration*1000 << endl;
-		std::cout << endl;
+		double aveDuration = total_duration / numRepeats;
+        double aveThroughput = num_tasks / aveDuration * 1000;
+
+        std::cout << "Threads: " << max_threads << ", Throughput: " << aveThroughput << " tasks per second.\n\n";
     }
 
     return 0;
