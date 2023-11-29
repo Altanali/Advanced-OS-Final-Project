@@ -70,5 +70,27 @@ void GEMM(
 }
 
 
+void small_gemm_task() {
+    int m = 10;
+    int n = 10;
+    int k = 10;
+    int rsA, rsB, rsC, csA, csB, csC;
 
+    rsA = rsC = m;
+    rsB = k;
+    csA = csB = csC = 1;
+
+    double *A = randomMatrix(m, k);
+    double *B = randomMatrix(k, n);
+    double *C = randomMatrix(m, n);
+
+    GEMM(m, n, k,
+         A, rsA, csA,
+         B, rsB, csB,
+         C, rsC, csC);
+
+    free(A);
+    free(B);
+    free(C);
+}
 #endif
