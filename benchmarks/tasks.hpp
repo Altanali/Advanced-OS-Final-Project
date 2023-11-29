@@ -4,10 +4,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <sys/resource.h>
+#include <chrono>
+#include <thread>
+#include <functional>
+#include <semaphore>
 using namespace std;
 
 static const float MAX_MATRIX_VALUE = 1000;
-
+static counting_semaphore rss_out_sema{1};
 // Basic algorithm for determining if a number is prime or not. 
 bool isPrime(long long n)
 {
@@ -92,5 +99,49 @@ void small_gemm_task() {
     free(A);
     free(B);
     free(C);
+}
+
+
+long long get_curr_rss() {
+    ifstream statFile("/proc/self/stat");
+    string line;
+    getline(statFile, line);
+    istringstream iss(line);
+    string entry;
+    for(int i = 0; i < 24; ++i) {
+        getline(iss, entry, ' ');
+    }
+    long long rss = stoi(entry);
+
+    return rss;
+}
+
+long long get_curr_time_long() {
+    auto curr_time = std::chrono::high_resolution_clock::now();
+	auto curr_time_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(curr_time).time_since_epoch();
+    auto value = std::chrono::duration_cast<std::chrono::milliseconds>(curr_time_ms);
+    return value.count();
+}
+
+void track_rss(string out_file, long long start_time = -1) {
+    ofstream out(out_file);
+
+    string out_message;
+    long long time;
+    long long rss;
+    while(1) {
+        if(rss_out_sema.try_acquire()) break;
+        this_thread::sleep_for(chrono::milliseconds(5));
+        long long duration = get_curr_time_long();
+        if(start_time != -1) {
+            time = duration - start_time;
+        } else {
+            time = duration;
+        }
+        rss = get_curr_rss();
+        out_message = to_string(time) + "," + to_string(rss) + "\n";
+        out.write(out_message.c_str(), out_message.size());
+    }
+    out.flush();
 }
 #endif
