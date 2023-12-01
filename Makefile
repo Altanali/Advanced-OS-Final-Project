@@ -39,6 +39,11 @@ boost_dependent: $(boost_benchmarks)/boost_dependent.cpp
 boost_small: $(boost_benchmarks)/boost_small_tasks.cpp
 	$(cc) $(CFLAGS) -I $(BOOST) $< $(HELPER) -o $@ -lpthread -lboost_thread	
 
+boost_tasks: $(boost_benchmarks)/boost_scale_tasks.cpp
+	$(cc) $(CFLAGS) -I $(BOOST) $< $(HELPER) -o $@ -lpthread -lboost_thread	
+
+boost_mixed_tasks: $(boost_benchmarks)/boost_mixed_tasks.cpp
+	$(cc) $(CFLAGS) -I $(BOOST) $< $(HELPER) -o $@ -lpthread -lboost_thread
 
 #tbb benchmarks
 
@@ -57,13 +62,22 @@ tbb_dependent: $(tbb_benchmarks)/tbb_dependent.cpp
 tbb_small: $(tbb_benchmarks)/tbb_small_tasks.cpp
 	$(cc) $(CFLAGS) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
 
+tbb_tasks: $(tbb_benchmarks)/tbb_scale_tasks.cpp
+	$(cc) $(CFLAGS) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
+
+tbb_mixed_tasks: $(tbb_benchmarks)/tbb_mixed_tasks.cpp
+	$(cc) $(CFLAGS) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
+
+tbb_nested: $(tbb_benchmarks)/tbb_nested.cpp
+	$(cc) $(CFLAGS) -I $(ONETBB) $< $(HELPER) -o $@ -ltbb
+
 
 #bs benchmarks
 
 bs_scalability: $(bs_benchmarks)/bs_scalability.cpp $(HELPER)
 	$(cc) $(CFLAGS) -I $(BS) $< $(HELPER) -o $@
 
-bs_blocking: $(bs_benchmarks)/boost_blocking_tasks.cpp $(HELPER)
+bs_blocking: $(bs_benchmarks)/bs_blocking_tasks.cpp $(HELPER)
 	$(cc) $(CFLAGS) -I $(BS) $< $(HELPER) -o $@
 
 bs_dependent: $(bs_benchmarks)/bs_dependent.cpp $(HELPER)
@@ -71,6 +85,14 @@ bs_dependent: $(bs_benchmarks)/bs_dependent.cpp $(HELPER)
 
 bs_small: $(bs_benchmarks)/bs_small_tasks.cpp $(HELPER)
 	$(cc) $(CFLAGS) -I $(BS) $< $(HELPER) -o $@
+
+bs_tasks: $(bs_benchmarks)/bs_scale_tasks.cpp $(HELPER)
+	$(cc) $(CFLAGS) -I $(BS) $< $(HELPER) -o $@
+
+
+bs_nested: $(bs_benchmarks)/bs_nested.cpp $(HELPER)
+	$(cc) $(CFLAGS) -I $(BS) $< $(HELPER) -o $@
+
 
 #pool benchmarks
 
@@ -96,4 +118,7 @@ nopool_blocking: $(nopool_benchmarks)/nopool_blocking_tasks.cpp
 	$(cc) $(CFLAGS) $(HELPER) $< -o $@
 
 nopool_small: $(nopool_benchmarks)/nopool_small_tasks.cpp
+	$(cc) $(CFLAGS) $(HELPER) $< -o $@
+
+nopool_dependent: $(nopool_benchmarks)/nopool_dependent.cpp
 	$(cc) $(CFLAGS) $(HELPER) $< -o $@
